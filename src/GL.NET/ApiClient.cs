@@ -129,21 +129,6 @@ public class ApiClient
         }
     }
 
-    public async Task<bool> UpdateNameFromPhoenixAsync(string id)
-    {
-        try
-        {
-            var response = await _client.GetAsync($"{_baseGlUrl}/users/updateNameFromPhoenix?id={id}");
-
-            return response.IsSuccessStatusCode;
-        }
-        catch (Exception e)
-        {
-            ThrowError(e);
-            return false;
-        }
-    }
-
     public async Task<Alliance?> GetAlliance(string name)
     {
         try

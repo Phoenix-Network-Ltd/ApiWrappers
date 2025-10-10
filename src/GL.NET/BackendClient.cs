@@ -83,6 +83,19 @@ public class BackendClient
         }
     }
 
+    public async Task<bool> UpdateNameFromPhoenixAsync(string userId)
+    {
+        try
+        {
+            using var response = await _client.PostAsync($"{_baseUrl}/Tasks/updateUsername?id={userId}", null);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     public async Task<bool> RenameAllianceAsync(string allianceId, string newName)
     {
         try
