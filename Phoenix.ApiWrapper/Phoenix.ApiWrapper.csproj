@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GenerateKiotaOnBuild>false</GenerateKiotaOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Kiota.Abstractions" Version="1.21.3" />
+      <PackageReference Include="Microsoft.Kiota.Http.HttpClientLibrary" Version="1.21.3" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Form" Version="1.21.3" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Json" Version="1.21.3" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Multipart" Version="1.21.3" />
+      <PackageReference Include="Microsoft.Kiota.Serialization.Text" Version="1.21.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <KiotaApi Include="GalaxyLife"
+                  OpenApiUrl="https://api.galaxylifegame.net/swagger/v1/swagger.json"
+                  OutputDir="$(MSBuildProjectDirectory)\Generated\GalaxyLife"
+                  Namespace="Phoenix.GalaxyLife.Api" />
+    </ItemGroup>
+
+    <Target Name="KiotaGenerate"
+            BeforeTargets="BeforeCompile"
+            Condition="'$(GenerateKiotaOnBuild)' == 'true'">
+        <Message Importance="high" Text="Running Kiota generate for all configured OpenAPI sources..." />
+        <Exec Command="dotnet tool restore" />
+        <MakeDir Directories="@(KiotaApi->'%(OutputDir)')" />
+        <Exec Command="dotnet tool run kiota generate --openapi &quot;%(KiotaApi.OpenApiUrl)&quot; --language csharp --output &quot;%(KiotaApi.OutputDir)&quot; --namespace-name &quot;%(KiotaApi.Namespace)&quot;" />
+    </Target>
+    
+</Project>
