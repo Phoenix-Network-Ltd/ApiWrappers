@@ -42,9 +42,9 @@ public sealed class PhoenixApiClient
     /// <summary>
     /// Typed Kiota client for the GalaxyLife API using token exchange (on-behalf-of).
     /// </summary>
-    public Phoenix.GalaxyLife.Api.ApiClient GalaxyLifeOnBehalfOf(string subjectToken) =>
+    public Phoenix.GalaxyLife.Api.ApiClient GalaxyLifeOnBehalfOf(string subjectId, string subjectProvider) =>
         new(
-            CreateKiotaAdapterOnBehalfOf(_options.GalaxyLifeBaseUrl!, subjectToken, _options.GalaxyLifeScopes, audience: null)
+            CreateKiotaAdapterOnBehalfOf(_options.GalaxyLifeBaseUrl!, subjectId, subjectProvider, _options.GalaxyLifeScopes, audience: null)
         );
 
     /// <summary>
@@ -68,7 +68,8 @@ public sealed class PhoenixApiClient
     /// Only allowed if EnableTokenExchange is set for this client.
     /// </summary>
     public Task<AccessToken> ExchangeOnBehalfOfAsync(
-        string subjectToken,
+        string subjectId,
+        string subjectProvider,
         IEnumerable<string>? scopes = null,
         string? audience = null,
         CancellationToken cancellationToken = default)
@@ -76,16 +77,16 @@ public sealed class PhoenixApiClient
         if (!_options.EnableTokenExchange)
             throw new InvalidOperationException("Token exchange is not enabled for this client configuration.");
 
-        if (string.IsNullOrWhiteSpace(subjectToken))
-            throw new ArgumentException("Subject token must be provided.", nameof(subjectToken));
+        if (string.IsNullOrWhiteSpace(subjectId))
+            throw new ArgumentException("Subject id must be provided.", nameof(subjectId));
 
         var scopeString = NormalizeScopes(scopes ?? _options.DefaultScopes);
-        var subjectHash = StableHash(subjectToken);
+        var subjectHash = StableHash(subjectId);
         var cacheKey = $"xchg|{scopeString}|{audience}|{subjectHash}";
 
         return GetOrCreateTokenAsync(
             cacheKey,
-            () => RequestTokenExchangeAsync(subjectToken, scopeString, audience, cancellationToken),
+            () => RequestTokenExchangeAsync(subjectId, subjectProvider, scopeString, audience, cancellationToken),
             cancellationToken);
     }
 
@@ -113,12 +114,13 @@ public sealed class PhoenixApiClient
     /// </summary>
     public async Task<HttpClient> CreateAuthenticatedHttpClientOnBehalfOfAsync(
         Uri baseAddress,
-        string subjectToken,
+        string subjectId,
+        string subjectProvider,
         IEnumerable<string>? scopes = null,
         string? audience = null,
         CancellationToken cancellationToken = default)
     {
-        var token = await ExchangeOnBehalfOfAsync(subjectToken, scopes, audience, cancellationToken).ConfigureAwait(false);
+        var token = await ExchangeOnBehalfOfAsync(subjectId, subjectProvider, scopes, audience, cancellationToken).ConfigureAwait(false);
 
         var client = new HttpClient
         {
@@ -147,10 +149,10 @@ public sealed class PhoenixApiClient
         return adapter;
     }
     
-    private IRequestAdapter CreateKiotaAdapterOnBehalfOf(Uri apiBaseUrl, string subjectToken, IEnumerable<string>? scopes, string? audience)
+    private IRequestAdapter CreateKiotaAdapterOnBehalfOf(Uri apiBaseUrl, string subjectId, string subjectProvider, IEnumerable<string>? scopes, string? audience)
     {
         var tokenProvider = new KiotaAccessTokenProvider(
-            acquireTokenAsync: ct => ExchangeOnBehalfOfAsync(subjectToken, scopes, audience, ct),
+            acquireTokenAsync: ct => ExchangeOnBehalfOfAsync(subjectId, subjectProvider, scopes, audience, ct),
             allowedHosts: GetAllowedHosts(apiBaseUrl));
 
         var authProvider = new BaseBearerTokenAuthenticationProvider(tokenProvider);
@@ -201,7 +203,8 @@ public sealed class PhoenixApiClient
     }
 
     private async Task<AccessToken> RequestTokenExchangeAsync(
-        string subjectToken,
+        string subjectId,
+        string subjectProvider,
         string scopeString,
         string? audience,
         CancellationToken cancellationToken)
@@ -211,8 +214,10 @@ public sealed class PhoenixApiClient
             ["grant_type"] = "urn:ietf:params:oauth:grant-type:token-exchange",
             ["client_id"] = _options.ClientId,
             ["client_secret"] = _options.ClientSecret,
-            ["subject_token"] = subjectToken,
-            ["subject_token_type"] = _options.SubjectTokenType ?? "urn:ietf:params:oauth:token-type:access_token",
+            ["subject_token"] = (await GetClientCredentialsTokenAsync()).Value,
+            ["subject_token_type"] = _options.SubjectTokenType ?? "access_token",
+            ["subject_id"] = subjectId,
+            ["subject_provider"] = subjectProvider,
         };
 
         if (!string.IsNullOrWhiteSpace(scopeString))
