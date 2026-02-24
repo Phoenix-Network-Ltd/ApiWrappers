@@ -10,8 +10,7 @@ var phoenix = new PhoenixApiClient(
         TokenEndpoint = new Uri("https://accounts.phoenixnetwork.net/oauth/token"),
         ClientId = "your-client-id",
         ClientSecret = "your-client-secret",
-        GalaxyLifeBaseUrl = new Uri("https://api.galaxylifegame.net"),
-        GalaxyLifeScopes = [],
+        Scopes = [],
     });
 
 var alliances = await phoenix.GalaxyLife.Alliances.GetPath.GetAsync();

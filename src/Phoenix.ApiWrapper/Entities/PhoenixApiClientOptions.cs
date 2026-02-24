@@ -5,6 +5,7 @@ public sealed class PhoenixApiClientOptions
     public Uri? TokenEndpoint { get; init; }
 
     public string ClientId { get; init; } = "";
+
     public string ClientSecret { get; init; } = "";
 
     /// <summary>Default scopes used when none are provided to methods.</summary>
@@ -26,6 +27,6 @@ public sealed class PhoenixApiClientOptions
     public int FallbackExpiresInSeconds { get; init; } = 300;
 
     public string[]? AllowedHosts { get; init; }
-    public Uri? GalaxyLifeBaseUrl { get; init; }
-    public string[] GalaxyLifeScopes { get; init; } = [];
+
+    public string[] Scopes { get; init; } = [];
 }

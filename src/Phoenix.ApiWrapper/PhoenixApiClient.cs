@@ -10,43 +10,54 @@ namespace Phoenix.ApiWrapper;
 
 public sealed class PhoenixApiClient
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_jsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly Uri s_glBaseUrl = new Uri("https://api.galaxylifegame.net");
+    private static readonly Uri s_pnBaseUrl = new Uri("https://api.phoenixnetwork.net");
 
     private readonly HttpClient _oauthHttp;
-    private readonly PhoenixApiClientOptions _options;
+    private readonly PhoenixApiClientOptions _pnOptions;
 
     private readonly ConcurrentDictionary<string, CachedToken> _tokenCache = new();
 
-    private GalaxyLife.Api.ApiClient? _galaxyLife;
+    /// <summary>
+    /// The main way to interface with the Galaxy Life API.
+    /// </summary>
+    public GalaxyLife.Api.ApiClient GalaxyLife { get; }
+
+    /// <summary>
+    /// The main way to interface with the Phoenix api.
+    /// </summary>
+    public Phoenix.Api.ApiClient Phoenix { get; }
 
     public PhoenixApiClient(HttpClient oauthHttpClient, PhoenixApiClientOptions options)
     {
         _oauthHttp = oauthHttpClient ?? throw new ArgumentNullException(nameof(oauthHttpClient));
-        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _pnOptions = options ?? throw new ArgumentNullException(nameof(options));
 
-        if (_options.TokenEndpoint is null)
+        if (_pnOptions.TokenEndpoint is null)
+        {
             throw new ArgumentException("TokenEndpoint must be configured.", nameof(options));
-        if (string.IsNullOrWhiteSpace(_options.ClientId))
-            throw new ArgumentException("ClientId must be configured.", nameof(options));
-        if (string.IsNullOrWhiteSpace(_options.ClientSecret))
-            throw new ArgumentException("ClientSecret must be configured.", nameof(options));
-    }
+        }
 
-    /// <summary>
-    /// Typed Kiota client for the GalaxyLife API using client-credentials.
-    /// </summary>
-    public GalaxyLife.Api.ApiClient GalaxyLife =>
-        _galaxyLife ??= new GalaxyLife.Api.ApiClient(
-            CreateKiotaAdapterForClientCredentials(_options.GalaxyLifeBaseUrl, _options.GalaxyLifeScopes)
-        );
+        if (string.IsNullOrWhiteSpace(_pnOptions.ClientId))
+        {
+            throw new ArgumentException("ClientId must be configured.", nameof(options));
+        }
+
+        if (string.IsNullOrWhiteSpace(_pnOptions.ClientSecret))
+        {
+            throw new ArgumentException("ClientSecret must be configured.", nameof(options));
+        }
+
+        GalaxyLife = new GalaxyLife.Api.ApiClient(CreateGLRequestAdapter());
+        Phoenix = new Phoenix.Api.ApiClient(CreateKiotaAdapterForClientCredentials(_pnOptions.Scopes));
+    }      
 
     /// <summary>
     /// Typed Kiota client for the GalaxyLife API using token exchange (on-behalf-of).
     /// </summary>
-    public GalaxyLife.Api.ApiClient GalaxyLifeOnBehalfOf(string subjectId, string subjectProvider) =>
-        new(
-            CreateKiotaAdapterOnBehalfOf(_options.GalaxyLifeBaseUrl!, subjectId, subjectProvider, _options.GalaxyLifeScopes, audience: null)
-        );
+    public Phoenix.Api.ApiClient PhoenixOnBehalfOf(string subjectId, string subjectProvider) =>
+        new(CreateKiotaAdapterOnBehalfOf(subjectId, subjectProvider, _pnOptions.Scopes, audience: null));
 
     /// <summary>
     /// Gets an access token using OAuth2 client credentials grant.
@@ -56,12 +67,11 @@ public sealed class PhoenixApiClient
         IEnumerable<string>? scopes = null,
         CancellationToken cancellationToken = default)
     {
-        var scopeString = NormalizeScopes(scopes ?? _options.DefaultScopes);
+        var scopeString = NormalizeScopes(scopes ?? _pnOptions.DefaultScopes);
         var cacheKey = $"cc|{scopeString}";
         return GetOrCreateTokenAsync(
             cacheKey,
-            () => RequestClientCredentialsTokenAsync(scopeString, cancellationToken),
-            cancellationToken);
+            () => RequestClientCredentialsTokenAsync(scopeString, cancellationToken));
     }
 
     /// <summary>
@@ -75,20 +85,19 @@ public sealed class PhoenixApiClient
         string? audience = null,
         CancellationToken cancellationToken = default)
     {
-        if (!_options.EnableTokenExchange)
+        if (!_pnOptions.EnableTokenExchange)
             throw new InvalidOperationException("Token exchange is not enabled for this client configuration.");
 
         if (string.IsNullOrWhiteSpace(subjectId))
             throw new ArgumentException("Subject id must be provided.", nameof(subjectId));
 
-        var scopeString = NormalizeScopes(scopes ?? _options.DefaultScopes);
+        var scopeString = NormalizeScopes(scopes ?? _pnOptions.DefaultScopes);
         var subjectHash = StableHash(subjectId);
         var cacheKey = $"xchg|{scopeString}|{audience}|{subjectHash}";
 
         return GetOrCreateTokenAsync(
             cacheKey,
-            () => RequestTokenExchangeAsync(subjectId, subjectProvider, scopeString, audience, cancellationToken),
-            cancellationToken);
+            () => RequestTokenExchangeAsync(subjectId, subjectProvider, scopeString, audience, cancellationToken));
     }
 
     /// <summary>
@@ -134,39 +143,49 @@ public sealed class PhoenixApiClient
     // --------------------
     // Kiota adapter creation
     // --------------------
-    private IRequestAdapter CreateKiotaAdapterForClientCredentials(Uri apiBaseUrl, IEnumerable<string>? scopes)
+    private IRequestAdapter CreateGLRequestAdapter()
+    {
+        var auth = new AnonymousAuthenticationProvider();
+
+        return new HttpClientRequestAdapter(auth)
+        {
+            BaseUrl = s_glBaseUrl.ToString().TrimEnd('/')
+        };
+    }
+
+    private IRequestAdapter CreateKiotaAdapterForClientCredentials(IEnumerable<string>? scopes)
     {
         var tokenProvider = new KiotaAccessTokenProvider(
             acquireTokenAsync: ct => GetClientCredentialsTokenAsync(scopes, ct),
-            allowedHosts: GetAllowedHosts(apiBaseUrl));
+            allowedHosts: GetAllowedHosts(s_pnBaseUrl));
 
         var authProvider = new BaseBearerTokenAuthenticationProvider(tokenProvider);
         var adapter = new HttpClientRequestAdapter(authProvider)
         {
-            BaseUrl = apiBaseUrl.ToString().TrimEnd('/')
+            BaseUrl = s_pnBaseUrl.ToString().TrimEnd('/')
         };
 
         return adapter;
     }
 
-    private IRequestAdapter CreateKiotaAdapterOnBehalfOf(Uri apiBaseUrl, string subjectId, string subjectProvider, IEnumerable<string>? scopes, string? audience)
+    private IRequestAdapter CreateKiotaAdapterOnBehalfOf(string subjectId, string subjectProvider, IEnumerable<string>? scopes, string? audience)
     {
         var tokenProvider = new KiotaAccessTokenProvider(
             acquireTokenAsync: ct => ExchangeOnBehalfOfAsync(subjectId, subjectProvider, scopes, audience, ct),
-            allowedHosts: GetAllowedHosts(apiBaseUrl));
+            allowedHosts: GetAllowedHosts(s_pnBaseUrl));
 
         var authProvider = new BaseBearerTokenAuthenticationProvider(tokenProvider);
         var adapter = new HttpClientRequestAdapter(authProvider)
         {
-            BaseUrl = apiBaseUrl.ToString().TrimEnd('/')
+            BaseUrl = s_pnBaseUrl.ToString().TrimEnd('/')
         };
 
         return adapter;
     }
 
     private string[] GetAllowedHosts(Uri apiBaseUrl) =>
-        _options.AllowedHosts is { Length: > 0 }
-            ? _options.AllowedHosts
+        _pnOptions.AllowedHosts is { Length: > 0 }
+            ? _pnOptions.AllowedHosts
             : [apiBaseUrl.Host];
 
     // --------------------
@@ -174,10 +193,9 @@ public sealed class PhoenixApiClient
     // --------------------
     private async Task<AccessToken> GetOrCreateTokenAsync(
         string cacheKey,
-        Func<Task<AccessToken>> factory,
-        CancellationToken cancellationToken)
+        Func<Task<AccessToken>> factory)
     {
-        if (_tokenCache.TryGetValue(cacheKey, out var cached) && !cached.IsExpired(_options.ExpirySkew))
+        if (_tokenCache.TryGetValue(cacheKey, out var cached) && !cached.IsExpired(_pnOptions.ExpirySkew))
             return cached.Token;
 
         // Single-flight per key could be added later (SemaphoreSlim per key).
@@ -191,8 +209,8 @@ public sealed class PhoenixApiClient
         var form = new Dictionary<string, string>
         {
             ["grant_type"] = "client_credentials",
-            ["client_id"] = _options.ClientId,
-            ["client_secret"] = _options.ClientSecret,
+            ["client_id"] = _pnOptions.ClientId,
+            ["client_secret"] = _pnOptions.ClientSecret,
         };
 
         if (!string.IsNullOrWhiteSpace(scopeString))
@@ -211,10 +229,10 @@ public sealed class PhoenixApiClient
         var form = new Dictionary<string, string>
         {
             ["grant_type"] = "token-exchange",
-            ["client_id"] = _options.ClientId,
-            ["client_secret"] = _options.ClientSecret,
+            ["client_id"] = _pnOptions.ClientId,
+            ["client_secret"] = _pnOptions.ClientSecret,
             ["subject_token"] = (await GetClientCredentialsTokenAsync()).Value,
-            ["subject_token_type"] = _options.SubjectTokenType ?? "access_token",
+            ["subject_token_type"] = _pnOptions.SubjectTokenType ?? "access_token",
             ["subject_id"] = subjectId,
             ["subject_provider"] = subjectProvider,
         };
@@ -225,15 +243,15 @@ public sealed class PhoenixApiClient
         if (!string.IsNullOrWhiteSpace(audience))
             form["audience"] = audience;
 
-        if (!string.IsNullOrWhiteSpace(_options.RequestedTokenType))
-            form["requested_token_type"] = _options.RequestedTokenType;
+        if (!string.IsNullOrWhiteSpace(_pnOptions.RequestedTokenType))
+            form["requested_token_type"] = _pnOptions.RequestedTokenType;
 
         return await RequestTokenAsync(form, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<AccessToken> RequestTokenAsync(Dictionary<string, string> form, CancellationToken cancellationToken)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Post, _options.TokenEndpoint)
+        using var request = new HttpRequestMessage(HttpMethod.Post, _pnOptions.TokenEndpoint)
         {
             Content = new FormUrlEncodedContent(form)
         };
@@ -247,13 +265,13 @@ public sealed class PhoenixApiClient
                 $"Token endpoint returned {(int)response.StatusCode} ({response.ReasonPhrase}). Payload: {payload}");
         }
 
-        var token = JsonSerializer.Deserialize<TokenEndpointResponse>(payload, JsonOptions)
+        var token = JsonSerializer.Deserialize<TokenEndpointResponse>(payload, s_jsonOptions)
                     ?? throw new InvalidOperationException("Token endpoint returned an empty response.");
 
         if (string.IsNullOrWhiteSpace(token.AccessToken))
             throw new InvalidOperationException("Token endpoint response did not include access_token.");
 
-        var expiresInSeconds = token.ExpiresIn <= 0 ? _options.FallbackExpiresInSeconds : token.ExpiresIn;
+        var expiresInSeconds = token.ExpiresIn <= 0 ? _pnOptions.FallbackExpiresInSeconds : token.ExpiresIn;
         var expiresAt = DateTimeOffset.UtcNow.AddSeconds(expiresInSeconds);
 
         return new AccessToken(token.AccessToken, expiresAt, token.TokenType ?? "Bearer", token.Scope);
