@@ -13,7 +13,7 @@
 		<PackageProjectUrl />
 		<RepositoryUrl>https://github.com/Galaxy-Life/GL.NET</RepositoryUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageIcon>512x512.png</PackageIcon>
+		<PackageIcon>logo.png</PackageIcon>
 		<PackageIconUrl />
 		<PackageTags>GL, Galaxy Life</PackageTags>
     </PropertyGroup>
@@ -41,5 +41,16 @@
         <MakeDir Directories="@(KiotaApi->'%(OutputDir)')" />
         <Exec Command="dotnet tool run kiota generate --openapi &quot;%(KiotaApi.OpenApiUrl)&quot; --language csharp --output &quot;%(KiotaApi.OutputDir)&quot; --namespace-name &quot;%(KiotaApi.Namespace)&quot;" />
     </Target>
-    
+
+	<ItemGroup>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath />
+		</None>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath />
+		</None>
+	</ItemGroup>
+
 </Project>
