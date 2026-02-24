@@ -4,6 +4,18 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+		<Version>1.0</Version>
+		<Authors>svr333, LifeCoder, Bryan</Authors>
+		<Company>Phoenix Network</Company>
+		<PackageId>PhoenixApiClients</PackageId>
+		<Description>A .NET API Wrapper for Phoenix and its games</Description>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageProjectUrl />
+		<RepositoryUrl>https://github.com/Galaxy-Life/GL.NET</RepositoryUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>512x512.png</PackageIcon>
+		<PackageIconUrl />
+		<PackageTags>GL, Galaxy Life</PackageTags>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -20,15 +32,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <KiotaApi Include="GalaxyLife"
-                  OpenApiUrl="https://api.galaxylifegame.net/swagger/v1/swagger.json"
-                  OutputDir="$(MSBuildProjectDirectory)\Generated\GalaxyLife"
-                  Namespace="Phoenix.GalaxyLife.Api" />
+        <KiotaApi Include="GalaxyLife" OpenApiUrl="https://api.galaxylifegame.net/swagger/v1/swagger.json" OutputDir="$(MSBuildProjectDirectory)\Generated\GalaxyLife" Namespace="Phoenix.GalaxyLife.Api" />
     </ItemGroup>
 
-    <Target Name="KiotaGenerate"
-            BeforeTargets="BeforeCompile"
-            Condition="'$(GenerateKiotaOnBuild)' == 'true'">
+    <Target Name="KiotaGenerate" BeforeTargets="BeforeCompile" Condition="'$(GenerateKiotaOnBuild)' == 'true'">
         <Message Importance="high" Text="Running Kiota generate for all configured OpenAPI sources..." />
         <Exec Command="dotnet tool restore" />
         <MakeDir Directories="@(KiotaApi->'%(OutputDir)')" />
