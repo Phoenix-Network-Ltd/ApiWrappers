@@ -17,7 +17,7 @@ public sealed class PhoenixApiClient
 
     private readonly ConcurrentDictionary<string, CachedToken> _tokenCache = new();
 
-    private Phoenix.GalaxyLife.Api.ApiClient? _galaxyLife;
+    private GalaxyLife.Api.ApiClient? _galaxyLife;
 
     public PhoenixApiClient(HttpClient oauthHttpClient, PhoenixApiClientOptions options)
     {
@@ -35,15 +35,15 @@ public sealed class PhoenixApiClient
     /// <summary>
     /// Typed Kiota client for the GalaxyLife API using client-credentials.
     /// </summary>
-    public Phoenix.GalaxyLife.Api.ApiClient GalaxyLife =>
-        _galaxyLife ??= new Phoenix.GalaxyLife.Api.ApiClient(
+    public GalaxyLife.Api.ApiClient GalaxyLife =>
+        _galaxyLife ??= new GalaxyLife.Api.ApiClient(
             CreateKiotaAdapterForClientCredentials(_options.GalaxyLifeBaseUrl, _options.GalaxyLifeScopes)
         );
 
     /// <summary>
     /// Typed Kiota client for the GalaxyLife API using token exchange (on-behalf-of).
     /// </summary>
-    public Phoenix.GalaxyLife.Api.ApiClient GalaxyLifeOnBehalfOf(string subjectId, string subjectProvider) =>
+    public GalaxyLife.Api.ApiClient GalaxyLifeOnBehalfOf(string subjectId, string subjectProvider) =>
         new(
             CreateKiotaAdapterOnBehalfOf(_options.GalaxyLifeBaseUrl!, subjectId, subjectProvider, _options.GalaxyLifeScopes, audience: null)
         );
@@ -134,7 +134,6 @@ public sealed class PhoenixApiClient
     // --------------------
     // Kiota adapter creation
     // --------------------
-
     private IRequestAdapter CreateKiotaAdapterForClientCredentials(Uri apiBaseUrl, IEnumerable<string>? scopes)
     {
         var tokenProvider = new KiotaAccessTokenProvider(
@@ -211,7 +210,7 @@ public sealed class PhoenixApiClient
     {
         var form = new Dictionary<string, string>
         {
-            ["grant_type"] = "urn:ietf:params:oauth:grant-type:token-exchange",
+            ["grant_type"] = "token-exchange",
             ["client_id"] = _options.ClientId,
             ["client_secret"] = _options.ClientSecret,
             ["subject_token"] = (await GetClientCredentialsTokenAsync()).Value,
@@ -281,8 +280,12 @@ public sealed class PhoenixApiClient
         unchecked
         {
             int hash = 23;
+
             foreach (var ch in value)
+            {
                 hash = (hash * 31) + ch;
+            }
+
             return hash.ToString("X", System.Globalization.CultureInfo.InvariantCulture);
         }
     }
