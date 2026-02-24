@@ -1,8 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36930.0 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.ApiWrapper", "Phoenix.ApiWrapper\Phoenix.ApiWrapper.csproj", "{3C9F0468-0B32-45A2-82E0-53D75B28D00C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{67E01460-3F3E-447E-99DE-90B91A3A607F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +26,11 @@ Global
 		{67E01460-3F3E-447E-99DE-90B91A3A607F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67E01460-3F3E-447E-99DE-90B91A3A607F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67E01460-3F3E-447E-99DE-90B91A3A607F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D9C4B5EF-CDF8-417F-903F-09241BB47ECA}
 	EndGlobalSection
 EndGlobal

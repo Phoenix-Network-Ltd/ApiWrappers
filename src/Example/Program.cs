@@ -1,10 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Phoenix.ApiWrapper;
+using Phoenix.ApiWrapper.Entities;
 
 var phoenix = new PhoenixApiClient(
     new HttpClient(),
-    new PhoenixApiClient.PhoenixApiClientOptions
+    new PhoenixApiClientOptions
     {
         TokenEndpoint = new Uri("https://accounts.phoenixnetwork.net/oauth/token"),
         ClientId = "your-client-id",

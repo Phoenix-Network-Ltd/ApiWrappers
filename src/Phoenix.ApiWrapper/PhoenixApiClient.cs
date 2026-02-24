@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using Microsoft.Kiota.Http.HttpClientLibrary;
+using Phoenix.ApiWrapper.Entities;
 
 namespace Phoenix.ApiWrapper;
 
@@ -15,7 +16,7 @@ public sealed class PhoenixApiClient
     private readonly PhoenixApiClientOptions _options;
 
     private readonly ConcurrentDictionary<string, CachedToken> _tokenCache = new();
-    
+
     private Phoenix.GalaxyLife.Api.ApiClient? _galaxyLife;
 
     public PhoenixApiClient(HttpClient oauthHttpClient, PhoenixApiClientOptions options)
@@ -30,7 +31,7 @@ public sealed class PhoenixApiClient
         if (string.IsNullOrWhiteSpace(_options.ClientSecret))
             throw new ArgumentException("ClientSecret must be configured.", nameof(options));
     }
-    
+
     /// <summary>
     /// Typed Kiota client for the GalaxyLife API using client-credentials.
     /// </summary>
@@ -129,7 +130,7 @@ public sealed class PhoenixApiClient
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
         return client;
     }
-    
+
     // --------------------
     // Kiota adapter creation
     // --------------------
@@ -148,7 +149,7 @@ public sealed class PhoenixApiClient
 
         return adapter;
     }
-    
+
     private IRequestAdapter CreateKiotaAdapterOnBehalfOf(Uri apiBaseUrl, string subjectId, string subjectProvider, IEnumerable<string>? scopes, string? audience)
     {
         var tokenProvider = new KiotaAccessTokenProvider(
@@ -172,7 +173,6 @@ public sealed class PhoenixApiClient
     // --------------------
     // Token plumbing
     // --------------------
-
     private async Task<AccessToken> GetOrCreateTokenAsync(
         string cacheKey,
         Func<Task<AccessToken>> factory,
@@ -285,61 +285,5 @@ public sealed class PhoenixApiClient
                 hash = (hash * 31) + ch;
             return hash.ToString("X", System.Globalization.CultureInfo.InvariantCulture);
         }
-    }
-
-    // --------------------
-    // Models / options
-    // --------------------
-
-    public sealed class PhoenixApiClientOptions
-    {
-        public Uri? TokenEndpoint { get; init; }
-
-        public string ClientId { get; init; } = "";
-        public string ClientSecret { get; init; } = "";
-
-        /// <summary>Default scopes used when none are provided to methods.</summary>
-        public string[] DefaultScopes { get; init; } = [];
-
-        /// <summary>Enable RFC 8693 token exchange flows (only for allowed clients).</summary>
-        public bool EnableTokenExchange { get; init; }
-
-        /// <summary>Defaults to access token type if not set.</summary>
-        public string? SubjectTokenType { get; init; }
-
-        /// <summary>Optional requested_token_type (RFC 8693).</summary>
-        public string? RequestedTokenType { get; init; }
-
-        /// <summary>How early we refresh before the token actually expires.</summary>
-        public TimeSpan ExpirySkew { get; init; } = TimeSpan.FromSeconds(60);
-
-        /// <summary>If expires_in is missing/invalid, use this.</summary>
-        public int FallbackExpiresInSeconds { get; init; } = 300;
-        
-        public string[]? AllowedHosts { get; init; }
-        public Uri? GalaxyLifeBaseUrl { get; init; }
-        public string[] GalaxyLifeScopes { get; init; } = [];
-    }
-
-    public sealed record AccessToken(string Value, DateTimeOffset ExpiresAtUtc, string TokenType, string? Scope);
-
-    private sealed record CachedToken(AccessToken Token)
-    {
-        public bool IsExpired(TimeSpan skew) => DateTimeOffset.UtcNow >= Token.ExpiresAtUtc.Subtract(skew);
-    }
-
-    private sealed class TokenEndpointResponse
-    {
-        public string? AccessToken { get; set; }
-        public int ExpiresIn { get; set; }
-        public string? TokenType { get; set; }
-        public string? Scope { get; set; }
-
-        // JSON property names (web defaults will map snake_case if configured accordingly in future,
-        // but we keep this simple by matching common casing via JsonSerializerDefaults.Web)
-        public string? access_token { get => AccessToken; set => AccessToken = value; }
-        public int expires_in { get => ExpiresIn; set => ExpiresIn = value; }
-        public string? token_type { get => TokenType; set => TokenType = value; }
-        public string? scope { get => Scope; set => Scope = value; }
     }
 }

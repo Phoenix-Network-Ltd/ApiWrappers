@@ -1,13 +1,14 @@
 ﻿using Microsoft.Kiota.Abstractions.Authentication;
+using Phoenix.ApiWrapper.Entities;
 
 namespace Phoenix.ApiWrapper;
 
 public class KiotaAccessTokenProvider : IAccessTokenProvider
 {
-    private readonly Func<CancellationToken, Task<PhoenixApiClient.AccessToken>> _acquireTokenAsync;
+    private readonly Func<CancellationToken, Task<AccessToken>> _acquireTokenAsync;
 
     public KiotaAccessTokenProvider(
-        Func<CancellationToken, Task<PhoenixApiClient.AccessToken>> acquireTokenAsync,
+        Func<CancellationToken, Task<AccessToken>> acquireTokenAsync,
         IEnumerable<string>? allowedHosts)
     {
         _acquireTokenAsync = acquireTokenAsync ?? throw new ArgumentNullException(nameof(acquireTokenAsync));
