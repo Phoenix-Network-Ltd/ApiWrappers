@@ -3,17 +3,21 @@
 using Phoenix.ApiWrapper;
 using Phoenix.ApiWrapper.Entities;
 
-var phoenix = new PhoenixApiClient(
-    new HttpClient(),
+var phoenix = new PhoenixClients(
+    new HttpClient() { Timeout = TimeSpan.FromSeconds(10) },
     new PhoenixApiClientOptions
     {
         TokenEndpoint = new Uri("https://accounts.phoenixnetwork.net/oauth/token"),
         ClientId = "your-client-id",
         ClientSecret = "your-client-secret",
         Scopes = [],
+    },
+    new GalaxyLifeApiClientOptions()
+    {
+        BackendToken = "BackendToken"
     });
 
-var alliances = await phoenix.GalaxyLife.Alliances.GetPath.GetAsync();
+var alliances = await phoenix.GalaxyLifeClient.Alliances.GetPath.GetAsync();
 
 var exchanged = await phoenix.ExchangeOnBehalfOfAsync("", "");
 

@@ -26,7 +26,7 @@ public sealed class PhoenixApiClientOptions
     /// <summary>If expires_in is missing/invalid, use this.</summary>
     public int FallbackExpiresInSeconds { get; init; } = 300;
 
-    public string[]? AllowedHosts { get; init; }
+    public string[] AllowedHosts { get; init; } = [];
 
     public string[] Scopes { get; init; } = [];
 }

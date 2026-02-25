@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Kiota.Abstractions;
@@ -8,7 +9,7 @@ using Phoenix.ApiWrapper.Entities;
 
 namespace Phoenix.ApiWrapper;
 
-public sealed class PhoenixApiClient
+public sealed class PhoenixClients
 {
     private static readonly JsonSerializerOptions s_jsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly Uri s_glBaseUrl = new Uri("https://api.galaxylifegame.net");
@@ -16,42 +17,49 @@ public sealed class PhoenixApiClient
 
     private readonly HttpClient _oauthHttp;
     private readonly PhoenixApiClientOptions _pnOptions;
+    private readonly GalaxyLifeApiClientOptions _glOptions;
 
     private readonly ConcurrentDictionary<string, CachedToken> _tokenCache = new();
 
     /// <summary>
     /// The main way to interface with the Galaxy Life API.
     /// </summary>
-    public GalaxyLife.Api.ApiClient GalaxyLife { get; }
+    public GalaxyLife.Api.ApiClient GalaxyLifeClient { get; }
 
     /// <summary>
     /// The main way to interface with the Phoenix api.
     /// </summary>
-    public Phoenix.Api.ApiClient Phoenix { get; }
+    public Phoenix.Api.ApiClient PhoenixClient { get; }
 
-    public PhoenixApiClient(HttpClient oauthHttpClient, PhoenixApiClientOptions options)
+    public PhoenixClients(HttpClient oauthHttpClient, PhoenixApiClientOptions pnOptions, GalaxyLifeApiClientOptions glOptions)
     {
         _oauthHttp = oauthHttpClient ?? throw new ArgumentNullException(nameof(oauthHttpClient));
-        _pnOptions = options ?? throw new ArgumentNullException(nameof(options));
+        _pnOptions = pnOptions ?? throw new ArgumentNullException(nameof(pnOptions));
+        _glOptions = glOptions ?? throw new ArgumentNullException(nameof(glOptions));
 
         if (_pnOptions.TokenEndpoint is null)
         {
-            throw new ArgumentException("TokenEndpoint must be configured.", nameof(options));
+            throw new ArgumentException("TokenEndpoint must be configured.", nameof(pnOptions));
         }
 
         if (string.IsNullOrWhiteSpace(_pnOptions.ClientId))
         {
-            throw new ArgumentException("ClientId must be configured.", nameof(options));
+            throw new ArgumentException("ClientId must be configured.", nameof(pnOptions));
         }
 
         if (string.IsNullOrWhiteSpace(_pnOptions.ClientSecret))
         {
-            throw new ArgumentException("ClientSecret must be configured.", nameof(options));
+            throw new ArgumentException("ClientSecret must be configured.", nameof(pnOptions));
         }
 
-        GalaxyLife = new GalaxyLife.Api.ApiClient(CreateGLRequestAdapter());
-        Phoenix = new Phoenix.Api.ApiClient(CreateKiotaAdapterForClientCredentials(_pnOptions.Scopes));
-    }      
+        if (!string.IsNullOrWhiteSpace(glOptions.BackendToken))
+        {
+            _oauthHttp.DefaultRequestHeaders.Add("gl-auth", glOptions.BackendToken);
+        }
+
+        GalaxyLifeClient = new GalaxyLife.Api.ApiClient(CreateGLRequestAdapter());
+        PhoenixClient = new Phoenix.Api.ApiClient(CreateKiotaAdapterForClientCredentials(_pnOptions.Scopes));
+    }
 
     /// <summary>
     /// Typed Kiota client for the GalaxyLife API using token exchange (on-behalf-of).
@@ -69,6 +77,7 @@ public sealed class PhoenixApiClient
     {
         var scopeString = NormalizeScopes(scopes ?? _pnOptions.DefaultScopes);
         var cacheKey = $"cc|{scopeString}";
+
         return GetOrCreateTokenAsync(
             cacheKey,
             () => RequestClientCredentialsTokenAsync(scopeString, cancellationToken));
@@ -263,18 +272,23 @@ public sealed class PhoenixApiClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new HttpRequestException(
-                $"Token endpoint returned {(int)response.StatusCode} ({response.ReasonPhrase}). Payload: {payload}");
+            throw new HttpRequestException($"Token endpoint returned {(int)response.StatusCode} ({response.ReasonPhrase}). Payload: {payload}");
         }
 
-        var token = JsonSerializer.Deserialize<TokenEndpointResponse>(payload, s_jsonOptions)
-                    ?? throw new InvalidOperationException("Token endpoint returned an empty response.");
+        var token = JsonSerializer.Deserialize<TokenEndpointResponse>(payload, s_jsonOptions);
+
+        if (token == null)
+        {
+            throw new InvalidOperationException("Token endpoint returned an empty response.");
+        }
 
         if (string.IsNullOrWhiteSpace(token.AccessToken))
+        {
             throw new InvalidOperationException("Token endpoint response did not include access_token.");
+        }
 
         var expiresInSeconds = token.ExpiresIn <= 0 ? _pnOptions.FallbackExpiresInSeconds : token.ExpiresIn;
-        var expiresAt = DateTimeOffset.UtcNow.AddSeconds(expiresInSeconds);
+        var expiresAt = DateTime.UtcNow.AddSeconds(expiresInSeconds);
 
         return new AccessToken(token.AccessToken, expiresAt, token.TokenType ?? "Bearer", token.Scope);
     }
@@ -299,14 +313,14 @@ public sealed class PhoenixApiClient
         // (If you need stronger privacy guarantees, use SHA-256.)
         unchecked
         {
-            int hash = 23;
+            var hash = 23;
 
             foreach (var ch in value)
             {
                 hash = (hash * 31) + ch;
             }
 
-            return hash.ToString("X", System.Globalization.CultureInfo.InvariantCulture);
+            return hash.ToString("X", CultureInfo.InvariantCulture);
         }
     }
 }
