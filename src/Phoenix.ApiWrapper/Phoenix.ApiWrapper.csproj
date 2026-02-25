@@ -7,7 +7,7 @@
 		<Version>1.0</Version>
 		<Authors>svr333, LifeCoder, Bryan</Authors>
 		<Company>Phoenix Network</Company>
-		<PackageId>PhoenixApiClients</PackageId>
+		<PackageId>PhoenixApiWrappers</PackageId>
 		<Description>A .NET API Wrapper for Phoenix and its games</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl />
