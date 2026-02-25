@@ -156,8 +156,6 @@ public sealed class PhoenixClients
     {
         var auth = new AnonymousAuthenticationProvider();
 
-        // TODO: GL Header auth
-
         return new HttpClientRequestAdapter(auth)
         {
             BaseUrl = s_glBaseUrl.ToString().TrimEnd('/')
