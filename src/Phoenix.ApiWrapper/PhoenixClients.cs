@@ -16,26 +16,21 @@ public sealed class PhoenixClients
     private static readonly Uri s_pnBaseUrl = new Uri("https://api.phoenixnetwork.net");
 
     private readonly HttpClient _oauthHttp;
-    private readonly PhoenixApiClientOptions _pnOptions;
-    private readonly GalaxyLifeApiClientOptions _glOptions;
+    private readonly PhoenixApiClientOptions? _pnOptions;
 
     private readonly ConcurrentDictionary<string, CachedToken> _tokenCache = new();
 
     /// <summary>
-    /// The main way to interface with the Galaxy Life API.
-    /// </summary>
-    public GalaxyLife.Api.ApiClient GalaxyLifeClient { get; }
-
-    /// <summary>
     /// The main way to interface with the Phoenix api.
     /// </summary>
-    public Phoenix.Api.ApiClient PhoenixClient { get; }
+    public Phoenix.Api.ApiClient? PhoenixClient { get; }
 
-    public PhoenixClients(HttpClient oauthHttpClient, PhoenixApiClientOptions pnOptions, GalaxyLifeApiClientOptions glOptions)
+    public PhoenixClients(HttpClient oauthHttpClient, PhoenixApiClientOptions? pnOptions)
     {
         _oauthHttp = oauthHttpClient ?? throw new ArgumentNullException(nameof(oauthHttpClient));
         _pnOptions = pnOptions ?? throw new ArgumentNullException(nameof(pnOptions));
-        _glOptions = glOptions ?? throw new ArgumentNullException(nameof(glOptions));
+
+        _pnOptions = pnOptions;
 
         if (_pnOptions.TokenEndpoint is null)
         {
@@ -51,13 +46,6 @@ public sealed class PhoenixClients
         {
             throw new ArgumentException("ClientSecret must be configured.", nameof(pnOptions));
         }
-
-        if (!string.IsNullOrWhiteSpace(glOptions.BackendToken))
-        {
-            _oauthHttp.DefaultRequestHeaders.Add("gl-auth", glOptions.BackendToken);
-        }
-
-        GalaxyLifeClient = new GalaxyLife.Api.ApiClient(CreateGLRequestAdapter());
 
         if (_pnOptions.EnableTokenExchange)
         {
@@ -165,16 +153,6 @@ public sealed class PhoenixClients
     // --------------------
     // Kiota adapter creation
     // --------------------
-    private IRequestAdapter CreateGLRequestAdapter()
-    {
-        var auth = new AnonymousAuthenticationProvider();
-
-        return new HttpClientRequestAdapter(auth)
-        {
-            BaseUrl = s_glBaseUrl.ToString().TrimEnd('/')
-        };
-    }
-
     private IRequestAdapter CreateKiotaAdapterForClientCredentials(IEnumerable<string>? scopes)
     {
         var tokenProvider = new KiotaAccessTokenProvider(

@@ -11,13 +11,6 @@ var phoenix = new PhoenixClients(
         ClientId = "your-client-id",
         ClientSecret = "your-client-secret",
         Scopes = [],
-    },
-    new GalaxyLifeApiClientOptions()
-    {
-        BackendToken = "BackendToken"
     });
 
-var alliances = await phoenix.GalaxyLifeClient.Alliances.GetPath.GetAsync();
-
 var exchanged = await phoenix.ExchangeOnBehalfOfAsync("", "");
-
