@@ -5,17 +5,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 		<Version>1.0</Version>
-		<Authors>svr333, LifeCoder, Bryan</Authors>
+		<Authors>Phoenix Network</Authors>
 		<Company>Phoenix Network</Company>
 		<PackageId>PhoenixApiWrappers</PackageId>
 		<Description>A .NET API Wrapper for Phoenix and its games</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+       <PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageProjectUrl />
-		<RepositoryUrl>https://github.com/Galaxy-Life/GL.NET</RepositoryUrl>
+		<RepositoryUrl>https://github.com/Phoenix-Network-Ltd/ApiWrappers/</RepositoryUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageIconUrl />
-		<PackageTags>GL, Galaxy Life</PackageTags>
+		<PackageTags>Phoenix Network, PN, Galaxy Life, GL</PackageTags>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -52,6 +53,10 @@
 			<Pack>True</Pack>
 			<PackagePath />
 		</None>
+        <None Include="..\..\README.md">
+          <Pack>True</Pack>
+          <PackagePath />
+        </None>
 	</ItemGroup>
 
 </Project>
