@@ -58,7 +58,20 @@ public sealed class PhoenixClients
         }
 
         GalaxyLifeClient = new GalaxyLife.Api.ApiClient(CreateGLRequestAdapter());
-        PhoenixClient = new Phoenix.Api.ApiClient(CreateKiotaAdapterForClientCredentials(_pnOptions.Scopes));
+
+        if (_pnOptions.EnableTokenExchange)
+        {
+            if (string.IsNullOrEmpty(_pnOptions.SubjectId) || string.IsNullOrEmpty(_pnOptions.SubjectProvider))
+            {
+                throw new ArgumentException("SubjectId and SubjectProvider need to be configured", nameof(pnOptions));
+            }
+
+            PhoenixClient = new Phoenix.Api.ApiClient(CreateKiotaAdapterOnBehalfOf(_pnOptions.SubjectId, _pnOptions.SubjectProvider, _pnOptions.Scopes, audience: null));
+        }
+        else
+        {
+            PhoenixClient = new Phoenix.Api.ApiClient(CreateKiotaAdapterForClientCredentials(_pnOptions.Scopes));
+        }
     }
 
     /// <summary>

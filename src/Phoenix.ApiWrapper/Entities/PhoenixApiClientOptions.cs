@@ -29,4 +29,8 @@ public sealed class PhoenixApiClientOptions
     public string[] AllowedHosts { get; init; } = [];
 
     public string[] Scopes { get; init; } = [];
+
+    public string? SubjectId { get; set; }
+
+    public string? SubjectProvider { get; set; }
 }
