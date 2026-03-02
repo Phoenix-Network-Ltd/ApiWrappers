@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "https://localhost:7137/"
+      "url": "https://localhost/"
     }
   ],
   "paths": {
@@ -770,7 +770,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserDto"
+                  "$ref": "#/components/schemas/UserDetailsDto"
                 }
               }
             }
@@ -1693,12 +1693,65 @@
           }
         }
       },
+      "UserDetailsDto": {
+        "required": [
+          "id",
+          "username",
+          "avatar",
+          "roles",
+          "email",
+          "email_confirmed",
+          "two_factor_enabled",
+          "registered_on",
+          "deletion_scheduled_at"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "email_confirmed": {
+            "type": "boolean"
+          },
+          "two_factor_enabled": {
+            "type": "boolean"
+          },
+          "registered_on": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletion_scheduled_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
       "UserDto": {
         "required": [
           "id",
           "username",
           "avatar",
-          "roles"
+          "roles",
+          "registered_on"
         ],
         "type": "object",
         "properties": {
@@ -1722,6 +1775,10 @@
           },
           "isBanned": {
             "type": "boolean"
+          },
+          "registered_on": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

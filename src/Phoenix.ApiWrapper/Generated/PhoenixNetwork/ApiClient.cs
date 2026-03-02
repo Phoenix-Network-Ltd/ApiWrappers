@@ -39,7 +39,7 @@ namespace Phoenix.Api
             ApiClientBuilder.RegisterDefaultDeserializer<FormParseNodeFactory>();
             if (string.IsNullOrEmpty(RequestAdapter.BaseUrl))
             {
-                RequestAdapter.BaseUrl = "https://localhost:7137";
+                RequestAdapter.BaseUrl = "https://localhost";
             }
             PathParameters.TryAdd("baseurl", RequestAdapter.BaseUrl);
         }

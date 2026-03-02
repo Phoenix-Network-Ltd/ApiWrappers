@@ -9,7 +9,7 @@ namespace Phoenix.Api.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class UserDto : IAdditionalDataHolder, IParsable
+    public partial class UserDetailsDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
@@ -22,10 +22,20 @@ namespace Phoenix.Api.Models
 #else
         public string Avatar { get; set; }
 #endif
+        /// <summary>The deletion_scheduled_at property</summary>
+        public DateTimeOffset? DeletionScheduledAt { get; set; }
+        /// <summary>The email property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? Email { get; set; }
+#nullable restore
+#else
+        public string Email { get; set; }
+#endif
+        /// <summary>The email_confirmed property</summary>
+        public bool? EmailConfirmed { get; set; }
         /// <summary>The id property</summary>
         public long? Id { get; set; }
-        /// <summary>The isBanned property</summary>
-        public bool? IsBanned { get; set; }
         /// <summary>The registered_on property</summary>
         public DateTimeOffset? RegisteredOn { get; set; }
         /// <summary>The roles property</summary>
@@ -36,6 +46,8 @@ namespace Phoenix.Api.Models
 #else
         public List<string> Roles { get; set; }
 #endif
+        /// <summary>The two_factor_enabled property</summary>
+        public bool? TwoFactorEnabled { get; set; }
         /// <summary>The username property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -45,21 +57,21 @@ namespace Phoenix.Api.Models
         public string Username { get; set; }
 #endif
         /// <summary>
-        /// Instantiates a new <see cref="global::Phoenix.Api.Models.UserDto"/> and sets the default values.
+        /// Instantiates a new <see cref="global::Phoenix.Api.Models.UserDetailsDto"/> and sets the default values.
         /// </summary>
-        public UserDto()
+        public UserDetailsDto()
         {
             AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::Phoenix.Api.Models.UserDto"/></returns>
+        /// <returns>A <see cref="global::Phoenix.Api.Models.UserDetailsDto"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::Phoenix.Api.Models.UserDto CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::Phoenix.Api.Models.UserDetailsDto CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-            return new global::Phoenix.Api.Models.UserDto();
+            return new global::Phoenix.Api.Models.UserDetailsDto();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -70,10 +82,13 @@ namespace Phoenix.Api.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "avatar", n => { Avatar = n.GetStringValue(); } },
+                { "deletion_scheduled_at", n => { DeletionScheduledAt = n.GetDateTimeOffsetValue(); } },
+                { "email", n => { Email = n.GetStringValue(); } },
+                { "email_confirmed", n => { EmailConfirmed = n.GetBoolValue(); } },
                 { "id", n => { Id = n.GetLongValue(); } },
-                { "isBanned", n => { IsBanned = n.GetBoolValue(); } },
                 { "registered_on", n => { RegisteredOn = n.GetDateTimeOffsetValue(); } },
                 { "roles", n => { Roles = n.GetCollectionOfPrimitiveValues<string>()?.AsList(); } },
+                { "two_factor_enabled", n => { TwoFactorEnabled = n.GetBoolValue(); } },
                 { "username", n => { Username = n.GetStringValue(); } },
             };
         }
@@ -85,10 +100,13 @@ namespace Phoenix.Api.Models
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteStringValue("avatar", Avatar);
+            writer.WriteDateTimeOffsetValue("deletion_scheduled_at", DeletionScheduledAt);
+            writer.WriteStringValue("email", Email);
+            writer.WriteBoolValue("email_confirmed", EmailConfirmed);
             writer.WriteLongValue("id", Id);
-            writer.WriteBoolValue("isBanned", IsBanned);
             writer.WriteDateTimeOffsetValue("registered_on", RegisteredOn);
             writer.WriteCollectionOfPrimitiveValues<string>("roles", Roles);
+            writer.WriteBoolValue("two_factor_enabled", TwoFactorEnabled);
             writer.WriteStringValue("username", Username);
             writer.WriteAdditionalData(AdditionalData);
         }

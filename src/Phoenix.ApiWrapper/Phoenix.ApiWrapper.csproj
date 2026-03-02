@@ -33,7 +33,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <KiotaApi Include="GalaxyLife" OpenApiUrl="https://api.galaxylifegame.net/swagger/v1/swagger.json" OutputDir="$(MSBuildProjectDirectory)\Generated\GalaxyLife" Namespace="Phoenix.GalaxyLife.Api" />
         <KiotaApi Include="PhoenixNetwork" OpenApiUrl="OpenApiDocuments/phoenix_api.json" OutputDir="$(MSBuildProjectDirectory)\Generated\PhoenixNetwork" Namespace="Phoenix.Api" />
     </ItemGroup>
 
