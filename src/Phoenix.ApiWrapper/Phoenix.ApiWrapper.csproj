@@ -16,7 +16,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageIconUrl />
-		<PackageTags>Phoenix Network, PN, Galaxy Life, GL</PackageTags>
+		<PackageTags>phoenixnetwork, pn, galaxylife, gl, galaxy-life, phoenix-network, phoenix</PackageTags>
     </PropertyGroup>
 
     <PropertyGroup>
