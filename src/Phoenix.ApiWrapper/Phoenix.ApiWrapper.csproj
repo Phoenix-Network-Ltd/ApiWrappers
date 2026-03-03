@@ -20,7 +20,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <GenerateKiotaOnBuild>true</GenerateKiotaOnBuild>
+        <GenerateKiotaOnBuild>false</GenerateKiotaOnBuild>
     </PropertyGroup>
 
     <ItemGroup>

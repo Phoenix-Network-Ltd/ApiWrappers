@@ -15,7 +15,7 @@ public sealed class PhoenixApiClientOptions
     public bool EnableTokenExchange { get; init; }
 
     /// <summary>Defaults to access token type if not set.</summary>
-    public string? SubjectTokenType { get; init; }
+    public string SubjectTokenType { get; init; } = "access_token";
 
     /// <summary>Optional requested_token_type (RFC 8693).</summary>
     public string? RequestedTokenType { get; init; }

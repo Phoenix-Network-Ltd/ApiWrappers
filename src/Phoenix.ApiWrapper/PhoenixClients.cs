@@ -231,7 +231,7 @@ public sealed class PhoenixClients
             ["client_id"] = _pnOptions.ClientId,
             ["client_secret"] = _pnOptions.ClientSecret,
             ["subject_token"] = (await GetClientCredentialsTokenAsync()).Value,
-            ["subject_token_type"] = _pnOptions.SubjectTokenType ?? "access_token",
+            ["subject_token_type"] = _pnOptions.SubjectTokenType,
             ["subject_id"] = subjectId,
             ["subject_provider"] = subjectProvider,
         };
