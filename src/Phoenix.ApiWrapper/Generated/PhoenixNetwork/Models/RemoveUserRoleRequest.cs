@@ -30,8 +30,6 @@ namespace Phoenix.Api.Models
 #else
         public string Role { get; set; }
 #endif
-        /// <summary>The user_id property</summary>
-        public long? UserId { get; set; }
         /// <summary>
         /// Instantiates a new <see cref="global::Phoenix.Api.Models.RemoveUserRoleRequest"/> and sets the default values.
         /// </summary>
@@ -59,7 +57,6 @@ namespace Phoenix.Api.Models
             {
                 { "moderator_note", n => { ModeratorNote = n.GetStringValue(); } },
                 { "role", n => { Role = n.GetStringValue(); } },
-                { "user_id", n => { UserId = n.GetLongValue(); } },
             };
         }
         /// <summary>
@@ -71,7 +68,6 @@ namespace Phoenix.Api.Models
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteStringValue("moderator_note", ModeratorNote);
             writer.WriteStringValue("role", Role);
-            writer.WriteLongValue("user_id", UserId);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

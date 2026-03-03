@@ -531,8 +531,7 @@
             "in": "query",
             "schema": {
               "pattern": "^(asc|desc)$",
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           },
           {
@@ -540,8 +539,7 @@
             "in": "query",
             "schema": {
               "pattern": "^(asc|desc)$",
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           },
           {
@@ -549,8 +547,7 @@
             "in": "query",
             "schema": {
               "pattern": "^(asc|desc)$",
-              "type": "integer",
-              "format": "int64"
+              "type": "string"
             }
           }
         ],
@@ -883,9 +880,7 @@
             }
           }
         }
-      }
-    },
-    "/v1/users/{userId}/entitlements/{entitlement}": {
+      },
       "delete": {
         "tags": [
           "Users"
@@ -896,16 +891,6 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "entitlement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "pattern": "^(asc|desc)$",
               "type": "integer",
               "format": "int64"
             }
@@ -1212,9 +1197,7 @@
             }
           }
         }
-      }
-    },
-    "/v1/users/{userId}/roles/{role}": {
+      },
       "delete": {
         "tags": [
           "Users"
@@ -1225,17 +1208,6 @@
             "in": "path",
             "required": true,
             "schema": {
-              "pattern": "^(asc|desc)$",
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "role",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "pattern": "^(asc|desc)$",
               "type": "integer",
               "format": "int64"
             }
@@ -1705,15 +1677,10 @@
       },
       "RemoveUserRoleRequest": {
         "required": [
-          "user_id",
           "role"
         ],
         "type": "object",
         "properties": {
-          "user_id": {
-            "type": "integer",
-            "format": "int64"
-          },
           "role": {
             "type": "string"
           },

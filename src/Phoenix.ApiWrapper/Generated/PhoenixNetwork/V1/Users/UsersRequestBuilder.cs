@@ -116,10 +116,28 @@ namespace Phoenix.Api.V1.Users
         public partial class UsersRequestBuilderGetQueryParameters 
         #pragma warning restore CS1591
         {
-            public long? Cursor { get; set; }
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            public string? Cursor { get; set; }
+#nullable restore
+#else
+            public string Cursor { get; set; }
+#endif
             public int? Limit { get; set; }
-            public long? Search { get; set; }
-            public long? Sort { get; set; }
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            public string? Search { get; set; }
+#nullable restore
+#else
+            public string Search { get; set; }
+#endif
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+            public string? Sort { get; set; }
+#nullable restore
+#else
+            public string Sort { get; set; }
+#endif
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.

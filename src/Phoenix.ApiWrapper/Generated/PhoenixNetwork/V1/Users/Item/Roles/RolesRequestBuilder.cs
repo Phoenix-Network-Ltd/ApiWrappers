@@ -4,7 +4,6 @@ using Microsoft.Kiota.Abstractions.Extensions;
 using Microsoft.Kiota.Abstractions.Serialization;
 using Microsoft.Kiota.Abstractions;
 using Phoenix.Api.Models;
-using Phoenix.Api.V1.Users.Item.Roles.Item;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -18,31 +17,6 @@ namespace Phoenix.Api.V1.Users.Item.Roles
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     public partial class RolesRequestBuilder : BaseRequestBuilder
     {
-        /// <summary>Gets an item from the Phoenix.Api.v1.users.item.roles.item collection</summary>
-        /// <param name="position">Unique identifier of the item</param>
-        /// <returns>A <see cref="global::Phoenix.Api.V1.Users.Item.Roles.Item.WithRoleItemRequestBuilder"/></returns>
-        public global::Phoenix.Api.V1.Users.Item.Roles.Item.WithRoleItemRequestBuilder this[long position]
-        {
-            get
-            {
-                var urlTplParams = new Dictionary<string, object>(PathParameters);
-                urlTplParams.Add("role", position);
-                return new global::Phoenix.Api.V1.Users.Item.Roles.Item.WithRoleItemRequestBuilder(urlTplParams, RequestAdapter);
-            }
-        }
-        /// <summary>Gets an item from the Phoenix.Api.v1.users.item.roles.item collection</summary>
-        /// <param name="position">Unique identifier of the item</param>
-        /// <returns>A <see cref="global::Phoenix.Api.V1.Users.Item.Roles.Item.WithRoleItemRequestBuilder"/></returns>
-        [Obsolete("This indexer is deprecated and will be removed in the next major version. Use the one with the typed parameter instead.")]
-        public global::Phoenix.Api.V1.Users.Item.Roles.Item.WithRoleItemRequestBuilder this[string position]
-        {
-            get
-            {
-                var urlTplParams = new Dictionary<string, object>(PathParameters);
-                if (!string.IsNullOrWhiteSpace(position)) urlTplParams.Add("role", position);
-                return new global::Phoenix.Api.V1.Users.Item.Roles.Item.WithRoleItemRequestBuilder(urlTplParams, RequestAdapter);
-            }
-        }
         /// <summary>
         /// Instantiates a new <see cref="global::Phoenix.Api.V1.Users.Item.Roles.RolesRequestBuilder"/> and sets the default values.
         /// </summary>
@@ -65,6 +39,27 @@ namespace Phoenix.Api.V1.Users.Item.Roles
         /// <exception cref="global::Phoenix.Api.Models.ErrorResponse">When receiving a 400 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
+        public async Task DeleteAsync(global::Phoenix.Api.Models.RemoveUserRoleRequest body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        {
+#nullable restore
+#else
+        public async Task DeleteAsync(global::Phoenix.Api.Models.RemoveUserRoleRequest body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        {
+#endif
+            if(ReferenceEquals(body, null)) throw new ArgumentNullException(nameof(body));
+            var requestInfo = ToDeleteRequestInformation(body, requestConfiguration);
+            var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
+            {
+                { "400", global::Phoenix.Api.Models.ErrorResponse.CreateFromDiscriminatorValue },
+            };
+            await RequestAdapter.SendNoContentAsync(requestInfo, errorMapping, cancellationToken).ConfigureAwait(false);
+        }
+        /// <param name="body">The request body</param>
+        /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
+        /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+        /// <exception cref="global::Phoenix.Api.Models.ErrorResponse">When receiving a 400 status code</exception>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
         public async Task PostAsync(global::Phoenix.Api.Models.AddUserRoleRequest body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #nullable restore
@@ -79,6 +74,25 @@ namespace Phoenix.Api.V1.Users.Item.Roles
                 { "400", global::Phoenix.Api.Models.ErrorResponse.CreateFromDiscriminatorValue },
             };
             await RequestAdapter.SendNoContentAsync(requestInfo, errorMapping, cancellationToken).ConfigureAwait(false);
+        }
+        /// <returns>A <see cref="RequestInformation"/></returns>
+        /// <param name="body">The request body</param>
+        /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public RequestInformation ToDeleteRequestInformation(global::Phoenix.Api.Models.RemoveUserRoleRequest body, Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default)
+        {
+#nullable restore
+#else
+        public RequestInformation ToDeleteRequestInformation(global::Phoenix.Api.Models.RemoveUserRoleRequest body, Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default)
+        {
+#endif
+            if(ReferenceEquals(body, null)) throw new ArgumentNullException(nameof(body));
+            var requestInfo = new RequestInformation(Method.DELETE, UrlTemplate, PathParameters);
+            requestInfo.Configure(requestConfiguration);
+            requestInfo.Headers.TryAdd("Accept", "application/json");
+            requestInfo.SetContentFromParsable(RequestAdapter, "application/json", body);
+            return requestInfo;
         }
         /// <returns>A <see cref="RequestInformation"/></returns>
         /// <param name="body">The request body</param>
@@ -107,6 +121,14 @@ namespace Phoenix.Api.V1.Users.Item.Roles
         public global::Phoenix.Api.V1.Users.Item.Roles.RolesRequestBuilder WithUrl(string rawUrl)
         {
             return new global::Phoenix.Api.V1.Users.Item.Roles.RolesRequestBuilder(rawUrl, RequestAdapter);
+        }
+        /// <summary>
+        /// Configuration for the request such as headers, query parameters, and middleware options.
+        /// </summary>
+        [Obsolete("This class is deprecated. Please use the generic RequestConfiguration class generated by the generator.")]
+        [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
+        public partial class RolesRequestBuilderDeleteRequestConfiguration : RequestConfiguration<DefaultQueryParameters>
+        {
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.
