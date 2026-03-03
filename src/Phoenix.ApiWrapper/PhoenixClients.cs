@@ -227,7 +227,7 @@ public sealed class PhoenixClients
     {
         var form = new Dictionary<string, string>
         {
-            ["grant_type"] = "token-exchange",
+            ["grant_type"] = "token_exchange",
             ["client_id"] = _pnOptions.ClientId,
             ["client_secret"] = _pnOptions.ClientSecret,
             ["subject_token"] = (await GetClientCredentialsTokenAsync()).Value,
