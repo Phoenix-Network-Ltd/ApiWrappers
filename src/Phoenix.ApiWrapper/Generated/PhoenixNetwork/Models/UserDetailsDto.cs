@@ -12,6 +12,14 @@ namespace Phoenix.Api.Models
     public partial class UserDetailsDto : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
+        /// <summary>The active_ban property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public global::Phoenix.Api.Models.BanDto? ActiveBan { get; set; }
+#nullable restore
+#else
+        public global::Phoenix.Api.Models.BanDto ActiveBan { get; set; }
+#endif
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The avatar property</summary>
@@ -36,6 +44,14 @@ namespace Phoenix.Api.Models
         public bool? EmailConfirmed { get; set; }
         /// <summary>The id property</summary>
         public long? Id { get; set; }
+        /// <summary>The linked_accounts property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public List<global::Phoenix.Api.Models.LinkedAccountDto>? LinkedAccounts { get; set; }
+#nullable restore
+#else
+        public List<global::Phoenix.Api.Models.LinkedAccountDto> LinkedAccounts { get; set; }
+#endif
         /// <summary>The registered_on property</summary>
         public DateTimeOffset? RegisteredOn { get; set; }
         /// <summary>The roles property</summary>
@@ -81,11 +97,13 @@ namespace Phoenix.Api.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
+                { "active_ban", n => { ActiveBan = n.GetObjectValue<global::Phoenix.Api.Models.BanDto>(global::Phoenix.Api.Models.BanDto.CreateFromDiscriminatorValue); } },
                 { "avatar", n => { Avatar = n.GetStringValue(); } },
                 { "deletion_scheduled_at", n => { DeletionScheduledAt = n.GetDateTimeOffsetValue(); } },
                 { "email", n => { Email = n.GetStringValue(); } },
                 { "email_confirmed", n => { EmailConfirmed = n.GetBoolValue(); } },
                 { "id", n => { Id = n.GetLongValue(); } },
+                { "linked_accounts", n => { LinkedAccounts = n.GetCollectionOfObjectValues<global::Phoenix.Api.Models.LinkedAccountDto>(global::Phoenix.Api.Models.LinkedAccountDto.CreateFromDiscriminatorValue)?.AsList(); } },
                 { "registered_on", n => { RegisteredOn = n.GetDateTimeOffsetValue(); } },
                 { "roles", n => { Roles = n.GetCollectionOfPrimitiveValues<string>()?.AsList(); } },
                 { "two_factor_enabled", n => { TwoFactorEnabled = n.GetBoolValue(); } },
@@ -99,11 +117,13 @@ namespace Phoenix.Api.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
+            writer.WriteObjectValue<global::Phoenix.Api.Models.BanDto>("active_ban", ActiveBan);
             writer.WriteStringValue("avatar", Avatar);
             writer.WriteDateTimeOffsetValue("deletion_scheduled_at", DeletionScheduledAt);
             writer.WriteStringValue("email", Email);
             writer.WriteBoolValue("email_confirmed", EmailConfirmed);
             writer.WriteLongValue("id", Id);
+            writer.WriteCollectionOfObjectValues<global::Phoenix.Api.Models.LinkedAccountDto>("linked_accounts", LinkedAccounts);
             writer.WriteDateTimeOffsetValue("registered_on", RegisteredOn);
             writer.WriteCollectionOfPrimitiveValues<string>("roles", Roles);
             writer.WriteBoolValue("two_factor_enabled", TwoFactorEnabled);

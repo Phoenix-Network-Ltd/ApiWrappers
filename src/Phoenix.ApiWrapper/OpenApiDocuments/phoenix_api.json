@@ -1323,7 +1323,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BanDto"
+                  "$ref": "#/components/schemas/BanDto2"
                 }
               }
             }
@@ -1435,6 +1435,41 @@
         }
       },
       "BanDto": {
+        "required": [
+          "bannedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/BanReasonType"
+          },
+          "moderatorId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "moderatorNotes": {
+            "type": "string",
+            "nullable": true
+          },
+          "bannedAt": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "nullable": true
+      },
+      "BanDto2": {
         "required": [
           "bannedAt"
         ],
@@ -1612,6 +1647,21 @@
       "FriendshipStatus": {
         "type": "integer"
       },
+      "LinkedAccountDto": {
+        "required": [
+          "provider",
+          "provider_key"
+        ],
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "provider_key": {
+            "type": "string"
+          }
+        }
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -1701,8 +1751,10 @@
           "roles",
           "email",
           "email_confirmed",
-          "two_factor_enabled",
           "registered_on",
+          "active_ban",
+          "linked_accounts",
+          "two_factor_enabled",
           "deletion_scheduled_at"
         ],
         "type": "object",
@@ -1731,12 +1783,21 @@
           "email_confirmed": {
             "type": "boolean"
           },
-          "two_factor_enabled": {
-            "type": "boolean"
-          },
           "registered_on": {
             "type": "string",
             "format": "date-time"
+          },
+          "active_ban": {
+            "$ref": "#/components/schemas/BanDto"
+          },
+          "linked_accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkedAccountDto"
+            }
+          },
+          "two_factor_enabled": {
+            "type": "boolean"
           },
           "deletion_scheduled_at": {
             "type": "string",
