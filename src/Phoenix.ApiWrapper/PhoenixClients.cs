@@ -12,7 +12,7 @@ namespace Phoenix.ApiWrapper;
 public sealed class PhoenixClients
 {
     private static readonly JsonSerializerOptions s_jsonOptions = new(JsonSerializerDefaults.Web);
-    private static readonly Uri s_pnBaseUrl = new Uri("https://api2.phoenixnetwork.net");
+    private static readonly Uri s_pnBaseUrl = new Uri("https://api.phoenixnetwork.net");
 
     private readonly HttpClient _oauthHttp;
     private readonly PhoenixApiClientOptions? _pnOptions;
